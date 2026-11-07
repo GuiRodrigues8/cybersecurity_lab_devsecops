@@ -1,0 +1,99 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.7.0 -- /home/gfr04/MEI/2ano/CSlab/lab4/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/gfr04/MEI/2ano/CSlab/lab4/cybersecurity_lab_devsecops
+collecting ... collected 7 items
+
+tests_security/test_security_regression.py::test_student_can_access_own_grades PASSED
+tests_security/test_security_regression.py::test_student_cannot_access_other_student_grades FAILED
+tests_security/test_security_regression.py::test_student_can_access_own_profile PASSED
+tests_security/test_security_regression.py::test_student_cannot_access_other_student_profile FAILED
+tests_security/test_security_regression.py::test_authenticated_user_can_download_allowed_file PASSED
+tests_security/test_security_regression.py::test_path_traversal_is_rejected Response body: CONFIDENTIAL OUTSIDE FILE
+FAILED
+tests_security/test_security_regression.py::test_absolute_path_access_is_rejected Response body: CONFIDENTIAL OUTSIDE FILE
+FAILED
+
+=================================== FAILURES ===================================
+_______________ test_student_cannot_access_other_student_grades ________________
+
+client = <FlaskClient <Flask 'baseline_secure_coding_api'>>
+
+    def test_student_cannot_access_other_student_grades(client):
+        login(client, "alice", "alicepw")
+    
+        response = client.get("/grades/1002")
+    
+>       assert response.status_code == 403
+E       assert 200 == 403
+E        +  where 200 = <WrapperTestResponse streamed [200 OK]>.status_code
+
+tests_security/test_security_regression.py:33: AssertionError
+_______________ test_student_cannot_access_other_student_profile _______________
+
+client = <FlaskClient <Flask 'baseline_secure_coding_api'>>
+
+    def test_student_cannot_access_other_student_profile(client):
+        login(client, "alice", "alicepw")
+    
+        response = client.get("/students/1002/profile")
+    
+>       assert response.status_code == 403
+E       assert 200 == 403
+E        +  where 200 = <WrapperTestResponse streamed [200 OK]>.status_code
+
+tests_security/test_security_regression.py:49: AssertionError
+_______________________ test_path_traversal_is_rejected ________________________
+
+client = <FlaskClient <Flask 'baseline_secure_coding_api'>>
+isolated_materials = (PosixPath('/tmp/pytest-of-gfr04/pytest-4/test_path_traversal_is_rejecte0/materials'), PosixPath('/tmp/pytest-of-gfr04...jecte0/outside.txt'), PosixPath('/tmp/pytest-of-gfr04/pytest-4/test_path_traversal_is_rejecte0/outside-variation.txt'))
+
+    def test_path_traversal_is_rejected(
+        client, isolated_materials
+    ):
+        login(client, "alice", "alicepw")
+    
+        _, outside, _ = isolated_materials
+    
+        response = client.get(
+            "/files",
+            query_string={"path": "../outside.txt"},
+        )
+    
+        print("Response body:", response.get_data(as_text=True))
+    
+>       assert response.status_code in (403, 404)
+E       assert 200 in (403, 404)
+E        +  where 200 = <WrapperTestResponse 25 bytes [200 OK]>.status_code
+
+tests_security/test_security_regression.py:104: AssertionError
+____________________ test_absolute_path_access_is_rejected _____________________
+
+client = <FlaskClient <Flask 'baseline_secure_coding_api'>>
+isolated_materials = (PosixPath('/tmp/pytest-of-gfr04/pytest-4/test_absolute_path_access_is_r0/materials'), PosixPath('/tmp/pytest-of-gfr04..._is_r0/outside.txt'), PosixPath('/tmp/pytest-of-gfr04/pytest-4/test_absolute_path_access_is_r0/outside-variation.txt'))
+
+    def test_absolute_path_access_is_rejected(
+        client, isolated_materials
+    ):
+        login(client, "alice", "alicepw")
+    
+        _, outside, _ = isolated_materials
+    
+        response = client.get(
+            "/files",
+            query_string={"path": str(outside)},
+        )
+    
+        print("Response body:", response.get_data(as_text=True))
+    
+>       assert response.status_code in (403, 404)
+E       assert 200 in (403, 404)
+E        +  where 200 = <WrapperTestResponse 25 bytes [200 OK]>.status_code
+
+tests_security/test_security_regression.py:122: AssertionError
+=========================== short test summary info ============================
+FAILED tests_security/test_security_regression.py::test_student_cannot_access_other_student_grades
+FAILED tests_security/test_security_regression.py::test_student_cannot_access_other_student_profile
+FAILED tests_security/test_security_regression.py::test_path_traversal_is_rejected
+FAILED tests_security/test_security_regression.py::test_absolute_path_access_is_rejected
+========================= 4 failed, 3 passed in 0.05s ==========================

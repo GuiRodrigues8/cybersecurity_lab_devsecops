@@ -114,15 +114,56 @@ def me():
 
 @app.get("/students/<student_id>/profile")
 def get_profile(student_id):
-    profile = STUDENT_PROFILES.get(int(student_id))
+    #profile = STUDENT_PROFILES.get(int(student_id))
+    if "user" not in flask.session:
+      return {"error": "unauthenticated"}, 401
+
+    try:
+        sid = int(student_id)
+    except (ValueError, TypeError):
+        return {"error": "invalid student id"}, 400
+
+    role = flask.session.get("role")
+    if role == "student":
+        if flask.session.get("student_id") != sid:
+            return {"error": "forbidden"}, 403
+    elif role == "professor":
+        student_courses = [row["course_id"] for row in GRADES if row["student_id"] == sid]
+        prof_courses = flask.session.get("courses", [])
+        if not any(c in prof_courses for c in student_courses):
+            return {"error": "forbidden"}, 403
+    elif role != "admin":
+        return {"error": "forbidden"}, 403
+
+    profile = STUDENT_PROFILES.get(sid)
     if profile is None:
         return {"error": "student not found"}, 404
     return flask.jsonify(profile)
 
 @app.get("/grades/<student_id>")
 def get_grades(student_id):
-    sid = int(student_id)
-    rows = [row for row in GRADES if row["student_id"] == sid]
+#    sid = int(student_id)
+#    rows = [row for row in GRADES if row["student_id"] == sid]
+    if "user" not in flask.session:
+       return {"error": "unauthenticated"}, 401
+
+    try:
+        sid = int(student_id)
+    except (ValueError, TypeError):
+        return {"error": "invalid student id"}, 400
+
+    role = flask.session.get("role")
+    if role == "student":
+        if flask.session.get("student_id") != sid:
+            return {"error": "forbidden"}, 403
+        rows = [row for row in GRADES if row["student_id"] == sid]
+    elif role == "professor":
+        prof_courses = flask.session.get("courses", [])
+        rows = [row for row in GRADES if row["student_id"] == sid and row["course_id"] in prof_courses]
+    elif role == "admin":
+        rows = [row for row in GRADES if row["student_id"] == sid]
+    else:
+        return {"error": "forbidden"}, 403
     return flask.jsonify(rows)
 
 @app.post("/grades/update")
@@ -144,8 +185,21 @@ def update_grade():
 @app.get("/files")
 def download_file():
     raw_path = flask.request.args.get("path", "")
-    target = MATERIALS_DIR / raw_path
-    return flask.send_file(target)
+#    target = MATERIALS_DIR / raw_path
+#    return flask.send_file(target)
+    if not raw_path:
+        return {"error": "path parameter required"}, 400
+    
+    try:
+        base_dir = MATERIALS_DIR.resolve()
+        target = (base_dir / raw_path).resolve()
+        
+        if not target.is_relative_to(base_dir) or not target.is_file():
+            return {"error": "file not found"}, 404
+            
+        return flask.send_file(target)
+    except (ValueError, FileNotFoundError, OSError):
+        return {"error": "file not found"}, 404
 
 @app.errorhandler(Exception)
 def handle_error(exc):

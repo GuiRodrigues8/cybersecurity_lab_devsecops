@@ -1,0 +1,15 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.7.0 -- /home/gfr04/MEI/2ano/CSlab/lab4/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/gfr04/MEI/2ano/CSlab/lab4/cybersecurity_lab_devsecops
+collecting ... collected 7 items
+
+tests_security/test_security_regression.py::test_student_can_access_own_grades PASSED [ 14%]
+tests_security/test_security_regression.py::test_student_cannot_access_other_student_grades PASSED [ 28%]
+tests_security/test_security_regression.py::test_student_can_access_own_profile PASSED [ 42%]
+tests_security/test_security_regression.py::test_student_cannot_access_other_student_profile PASSED [ 57%]
+tests_security/test_security_regression.py::test_authenticated_user_can_download_allowed_file PASSED [ 71%]
+tests_security/test_security_regression.py::test_path_traversal_is_rejected PASSED [ 85%]
+tests_security/test_security_regression.py::test_absolute_path_access_is_rejected PASSED [100%]
+
+============================== 7 passed in 0.03s ===============================

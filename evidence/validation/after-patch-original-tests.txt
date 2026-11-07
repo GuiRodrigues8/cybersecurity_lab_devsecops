@@ -1,0 +1,13 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-8.4.2, pluggy-1.7.0 -- /home/gfr04/MEI/2ano/CSlab/lab4/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/gfr04/MEI/2ano/CSlab/lab4/cybersecurity_lab_devsecops
+collecting ... collected 5 items
+
+tests/test_api.py::test_index_lists_endpoints PASSED                     [ 20%]
+tests/test_api.py::test_me_without_login_returns_no_user PASSED          [ 40%]
+tests/test_api.py::test_login_with_valid_credentials PASSED              [ 60%]
+tests/test_api.py::test_get_student_profile PASSED                       [ 80%]
+tests/test_api.py::test_get_student_grades PASSED                        [100%]
+
+============================== 5 passed in 0.07s ===============================
